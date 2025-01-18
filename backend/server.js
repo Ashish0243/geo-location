@@ -1,7 +1,6 @@
 const express = require("express");
 const http = require("http");
 const socketIo = require("socket.io");
-const redis = require("redis");
 const cors = require("cors");
 
 const app = express();
@@ -15,24 +14,8 @@ const io = socketIo(server, {
   },
 });
 
-const redisHost = process.env.REDIS_HOST || 'redis'; // Default to 'redis' for Docker network
-const redisPort = process.env.REDIS_PORT || 6379; // Default Redis port
-
-const redisClient = redis.createClient({
-    url: `redis://${redisHost}:${redisPort}`,
-});
-
-redisClient.on('error', (err) => console.error('Redis error:', err));
-redisClient.on('connect', () => console.log('Connected to Redis'));
-
-// Connect to Redis
-(async () => {
-    try {
-        await redisClient.connect();
-    } catch (error) {
-        console.error('Failed to connect to Redis:', error);
-    }
-})();
+// Store active users in memory (for MVP)
+const activeUsers = new Map();
 
 app.get('/', (req, res) => {
     res.send('Geolocation App Server');
@@ -43,17 +26,31 @@ app.use(express.static('frontend/build'));
 
 // Real-time location updates
 io.on('connection', (socket) => {
-    console.log('a user connected');
+    console.log('User connected:', socket.id);
     
-    socket.on('update-location', (location) => {
-        // Store location in Redis
-        redisClient.hSet('locations', location.userId, JSON.stringify(location));
-        // Broadcast to all connected clients
-        io.emit('location-update', location);
+    // Immediately send all current users' locations to new user
+    const existingLocations = Array.from(activeUsers.entries()).map(([id, location]) => ({
+        userId: id,
+        ...location
+    }));
+    socket.emit('initial-locations', existingLocations);
+    
+    socket.on('location-update', (location) => {
+        // Store updated location
+        activeUsers.set(socket.id, location);
+        
+        // Broadcast to all clients immediately
+        io.emit('location-update', {
+            userId: socket.id,
+            ...location
+        });
     });
 
     socket.on('disconnect', () => {
-        console.log('user disconnected');
+        // Remove user when they disconnect
+        activeUsers.delete(socket.id);
+        io.emit('user-disconnected', socket.id);
+        console.log('User disconnected:', socket.id);
     });
 });
 
