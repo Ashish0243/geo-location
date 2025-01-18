@@ -10,7 +10,7 @@ const App = () => {
 
     useEffect(() => {
         // Initialize socket connection
-        socketRef.current = io('http://localhost:5000');
+        socketRef.current = io('https://geo-location-oajn.onrender.com/');
 
         // Handle initial locations of existing users
         socketRef.current.on('initial-locations', (locations) => {
