@@ -1,35 +1,33 @@
 import React, { useEffect, useRef } from 'react';
 import L from 'leaflet';
 
-const Map = ({ location }) => {
+const MapComponent = ({ location, accuracy, otherUsers }) => {
     const mapRef = useRef(null);
     const markerRef = useRef(null);
+    const accuracyCircleRef = useRef(null);
+    const otherMarkersRef = useRef(new Map());
 
     useEffect(() => {
         // Initialize the map only once
         if (!mapRef.current) {
             mapRef.current = L.map("map-container", {
-                zoomControl: true, // Enable zoom controls
-                minZoom: 5, // Set minimum zoom level
-                maxZoom: 18, // Set maximum zoom level
-                zoomSnap: 0.5, // Allow smoother zoom steps
-                zoomDelta: 1, // Adjust zoom sensitivity
+                zoomControl: true,
+                minZoom: 5,
+                maxZoom: 18,
+                zoomSnap: 0.5,
+                zoomDelta: 1,
             }).setView([0, 0], 13);
 
-            // Add a tile layer to the map
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
             }).addTo(mapRef.current);
         }
 
-        // Update the map and marker when location changes
+        // Update current user's marker and accuracy circle
         if (location) {
             const { latitude, longitude } = location;
-
-            // Set map view to new location
             mapRef.current.setView([latitude, longitude], 15);
 
-            // Add or update the marker
             if (markerRef.current) {
                 markerRef.current.setLatLng([latitude, longitude]);
             } else {
@@ -38,8 +36,43 @@ const Map = ({ location }) => {
                     .bindPopup('You are here')
                     .openPopup();
             }
+
+            if (accuracy) {
+                if (accuracyCircleRef.current) {
+                    accuracyCircleRef.current.setLatLng([latitude, longitude])
+                        .setRadius(accuracy);
+                } else {
+                    accuracyCircleRef.current = L.circle([latitude, longitude], {
+                        radius: accuracy,
+                        color: 'blue',
+                        fillColor: '#3388ff',
+                        fillOpacity: 0.2
+                    }).addTo(mapRef.current);
+                }
+            }
         }
-    }, [location]);
+
+        // Update other users' markers
+        otherUsers.forEach(user => {
+            const { userId, latitude, longitude } = user;
+            if (otherMarkersRef.current.has(userId)) {
+                otherMarkersRef.current.get(userId).setLatLng([latitude, longitude]);
+            } else {
+                const marker = L.marker([latitude, longitude])
+                    .addTo(mapRef.current)
+                    .bindPopup(`User ${userId}`);
+                otherMarkersRef.current.set(userId, marker);
+            }
+        });
+
+        // Remove markers for disconnected users
+        otherMarkersRef.current.forEach((marker, userId) => {
+            if (!otherUsers.find(user => user.userId === userId)) {
+                marker.remove();
+                otherMarkersRef.current.delete(userId);
+            }
+        });
+    }, [location, accuracy, otherUsers]);
 
     return (
         <div>
@@ -53,4 +86,4 @@ const Map = ({ location }) => {
     );
 };
 
-export default Map;
+export default MapComponent;
