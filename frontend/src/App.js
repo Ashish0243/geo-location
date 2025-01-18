@@ -9,8 +9,8 @@ const App = () => {
     const socketRef = useRef(null);
 
     useEffect(() => {
-        // Initialize socket connection
-        socketRef.current = io('https://geo-location-oajn.onrender.com/');
+        const apiUrl = process.env.REACT_APP_API_URL;
+        socketRef.current = io(apiUrl);
 
         // Handle initial locations of existing users
         socketRef.current.on('initial-locations', (locations) => {
