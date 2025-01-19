@@ -16,7 +16,7 @@ const MapComponent = ({ location, accuracy, otherUsers }) => {
                 maxZoom: 18,
                 zoomSnap: 0.5,
                 zoomDelta: 1,
-            }).setView([0, 0], 6);
+            }).setView([0, 0], 16);
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
