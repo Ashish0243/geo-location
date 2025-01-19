@@ -12,7 +12,7 @@ const MapComponent = ({ location, accuracy, otherUsers }) => {
         if (!mapRef.current) {
             mapRef.current = L.map("map-container", {
                 zoomControl: true,
-                minZoom: 5,
+                minZoom: 2,
                 maxZoom: 18,
                 zoomSnap: 0.5,
                 zoomDelta: 1,
