@@ -11,15 +11,16 @@ const MapComponent = ({ location, accuracy, otherUsers }) => {
         if (!mapRef.current) {
             mapRef.current = L.map("map-container", {
                 zoomControl: true,
-                zoom:18,
+                zoom:20,
                 minZoom: 2,
                 maxZoom: 22,
                 zoomSnap: 0.5,
                 zoomDelta: 1,
-            }).setView([0, 0], 18);
+            }).setView([0, 0], 20);
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                maxZoom:22
             }).addTo(mapRef.current);
         }
 
