@@ -8,23 +8,21 @@ const MapComponent = ({ location, accuracy, otherUsers }) => {
     const otherMarkersRef = useRef(new Map());
 
     useEffect(() => {
-        // Initialize the map only once
         if (!mapRef.current) {
             mapRef.current = L.map("map-container", {
                 zoomControl: true,
+                zoom:18,
                 minZoom: 2,
-                maxZoom:20,
+                maxZoom: 18,
                 zoomSnap: 0.5,
                 zoomDelta: 1,
-                zoom:18,
-            }).setView([0, 0], 16);
+            }).setView([0, 0], 13);
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
             }).addTo(mapRef.current);
         }
 
-        // Update current user's marker and accuracy circle
         if (location) {
             const { latitude, longitude } = location;
             mapRef.current.setView([latitude, longitude], 15);
