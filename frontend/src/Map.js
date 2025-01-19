@@ -26,7 +26,7 @@ const MapComponent = ({ location, accuracy, otherUsers }) => {
 
         if (location) {
             const { latitude, longitude } = location;
-            mapRef.current.setView([latitude, longitude], 15);
+            mapRef.current.setView([latitude, longitude], 20);
 
             if (markerRef.current) {
                 markerRef.current.setLatLng([latitude, longitude]);
