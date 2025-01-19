@@ -13,10 +13,10 @@ const MapComponent = ({ location, accuracy, otherUsers }) => {
             mapRef.current = L.map("map-container", {
                 zoomControl: true,
                 minZoom: 2,
-                maxZoom: 18,
+                maxZoom:20,
                 zoomSnap: 0.5,
                 zoomDelta: 1,
-                zoom:16,
+                zoom:18,
             }).setView([0, 0], 16);
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
